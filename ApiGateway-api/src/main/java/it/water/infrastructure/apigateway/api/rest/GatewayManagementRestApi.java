@@ -19,6 +19,13 @@ import java.util.Map;
 
 /**
  * REST API interface for Gateway management operations.
+ * <p>
+ * Authorization is NOT declared here. The Water permission model enforces access in the SERVICE
+ * layer: this REST contract is implemented by a {@code @FrameworkRestController} that delegates to
+ * the permission-checked {@code GatewayApi} (a {@code @FrameworkComponent} service), where the
+ * {@code @AllowGenericPermissions} checks against the Route resource actually fire. Keeping this
+ * interface free of permission annotations also keeps {@code ApiGateway-api} free of any dependency
+ * on {@code Core-permission}.
  */
 @Path("/api/gateway/management")
 @Api(produces = MediaType.APPLICATION_JSON, tags = "Gateway Management API")

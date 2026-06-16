@@ -36,6 +36,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Gateway system service - handles service discovery integration and gateway management.
+ *
+ * <p><b>SECURITY (#17) — SystemApi is a TRUSTED layer that bypasses ALL permission interceptors.</b>
+ * Operational methods here ({@code getServiceStatistics}, {@code syncWithServiceDiscovery}, ...) run with
+ * NO authorization checks. This class MUST NEVER be the dependency that an externally-reachable REST
+ * controller relies on for authorization — the management controller delegates instead to the
+ * permission-checked {@code GatewayApi} ({@code GatewayServiceImpl}), which carries
+ * {@code @AllowGenericPermissions} (VIEW_METRICS / REFRESH_ROUTES on the Route resource). The earlier
+ * {@code @LoggedIn}-only wiring (#32) let any authenticated user reach this trusted layer; that gap is
+ * now closed at the Api layer.
  */
 @FrameworkComponent
 public class GatewaySystemServiceImpl extends BaseEntitySystemServiceImpl<Route> implements GatewaySystemApi {

@@ -2,7 +2,7 @@ package it.water.infrastructure.apigateway.service.rest;
 
 import it.water.core.api.service.rest.FrameworkRestController;
 import it.water.core.interceptors.annotations.Inject;
-import it.water.infrastructure.apigateway.api.GatewaySystemApi;
+import it.water.infrastructure.apigateway.api.GatewayApi;
 import it.water.infrastructure.apigateway.api.rest.GatewayManagementRestApi;
 import it.water.infrastructure.apigateway.model.CircuitState;
 import it.water.infrastructure.apigateway.model.ServiceStats;
@@ -25,7 +25,7 @@ public class GatewayManagementRestControllerImpl implements GatewayManagementRes
 
     @Inject
     @Setter
-    private GatewaySystemApi gatewaySystemApi;
+    private GatewayApi gatewayApi;
 
     @Override
     public Map<String, Object> health() {
@@ -38,12 +38,12 @@ public class GatewayManagementRestControllerImpl implements GatewayManagementRes
 
     @Override
     public Map<String, ServiceStats> metrics() {
-        return gatewaySystemApi.getServiceStatistics();
+        return gatewayApi.getServiceStatistics();
     }
 
     @Override
     public Map<String, String> circuitBreakers() {
-        Map<String, ServiceStats> stats = gatewaySystemApi.getServiceStatistics();
+        Map<String, ServiceStats> stats = gatewayApi.getServiceStatistics();
         Map<String, String> result = new HashMap<>();
         stats.forEach((service, stat) -> {
             CircuitState state = stat.getCircuitState();
@@ -56,7 +56,7 @@ public class GatewayManagementRestControllerImpl implements GatewayManagementRes
     public Response syncServiceDiscovery() {
         log.info("REST: triggering ServiceDiscovery sync");
         try {
-            gatewaySystemApi.syncWithServiceDiscovery();
+            gatewayApi.syncWithServiceDiscovery();
             return Response.noContent().build();
         } catch (Exception e) {
             log.error("REST: ServiceDiscovery sync failed: {}", e.getMessage(), e);
