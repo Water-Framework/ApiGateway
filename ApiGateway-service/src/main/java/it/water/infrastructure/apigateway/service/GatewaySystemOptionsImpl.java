@@ -23,6 +23,10 @@ import it.water.infrastructure.apigateway.api.options.GatewaySystemOptions;
 import it.water.infrastructure.apigateway.model.GatewayConstants;
 import lombok.Setter;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * Default implementation of {@link GatewaySystemOptions} reading values from
  * {@link ApplicationProperties}. Returns an empty string for the service
@@ -79,5 +83,25 @@ public class GatewaySystemOptionsImpl implements GatewaySystemOptions {
         }
         return (int) Math.max(0L, applicationProperties.getPropertyOrDefault(
                 GatewayConstants.PROP_RATE_LIMITER_DEFAULT_RPM, 0L));
+    }
+
+    @Override
+    public Set<String> getTrustedProxies() {
+        if (applicationProperties == null) {
+            return Collections.emptySet();
+        }
+        String raw = applicationProperties.getPropertyOrDefault(
+                GatewayConstants.PROP_TRUSTED_PROXIES, "").trim();
+        if (raw.isEmpty()) {
+            return Collections.emptySet();
+        }
+        Set<String> proxies = new LinkedHashSet<>();
+        for (String token : raw.split(",")) {
+            String ip = token.trim();
+            if (!ip.isEmpty()) {
+                proxies.add(ip);
+            }
+        }
+        return Collections.unmodifiableSet(proxies);
     }
 }

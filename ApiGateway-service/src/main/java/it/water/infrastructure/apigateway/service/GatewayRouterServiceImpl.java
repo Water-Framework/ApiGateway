@@ -125,7 +125,11 @@ public class GatewayRouterServiceImpl implements GatewayRouterApi {
         Route route = routeResult.getRoute();
         ServiceRegistration instance = routeResult.getSelectedInstance();
 
-        // Rate limit check
+        // Rate limit check.
+        // #37: request.getClientIp() is the trusted client identity resolved by the proxy controller:
+        // it is the immediate TCP source address unless that peer is a configured trusted proxy, in
+        // which case the X-Forwarded-For/X-Real-IP value is used. It is NOT a raw client-controlled
+        // header, so it cannot be spoofed to evade per-client rate limiting.
         String rateLimitKey = request.getClientIp() != null ? request.getClientIp() : "global";
         RateLimitResult rateLimitResult = rateLimiterApi.checkRateLimit(rateLimitKey, request);
         if (!rateLimitResult.isAllowed()) {

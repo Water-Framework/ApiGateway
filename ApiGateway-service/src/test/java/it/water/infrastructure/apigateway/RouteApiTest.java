@@ -324,6 +324,82 @@ class RouteApiTest implements Service {
         routeSystemApi.remove(saved.getId());
     }
 
+    /**
+     * #38 — update() must restore the persisted ownerUserId onto the incoming entity.
+     *
+     * <p>A client must never be able to give an OwnedResource away (or null the owner) by
+     * supplying a tampered {@code ownerUserId} in an update payload. {@code BaseEntityServiceImpl}
+     * reloads the persisted entity and copies its {@code ownerUserId} before delegating to the
+     * system service, so the field must remain unchanged regardless of what the caller sets.
+     *
+     * <p>Route implements {@link it.water.core.api.entity.owned.OwnedResource} and is therefore
+     * a valid fixture for this regression test. The admin security context is used so that all
+     * permission checks pass and only the ownership-restore behavior is exercised.
+     */
+    @Test
+    @Order(22)
+    void update_tamperedOwnerUserId_ownerUserIdIsRestoredFromPersistedEntity() {
+        TestRuntimeUtils.impersonateAdmin(componentRegistry);
+
+        // Save a fresh route; save() sets ownerUserId from the security context (admin user id)
+        Route saved = routeApi.save(createRoute("owner-restore-route-38"));
+        Long originalOwnerUserId = saved.getOwnerUserId();
+
+        // Build a DISTINCT update payload — as a deserialized REST client would send — carrying the
+        // persisted id/version but a tampered owner. We must NOT mutate `saved` itself: the persisted
+        // record is what update() reloads to restore the owner.
+        final long TAMPERED_OWNER = 999_999L;
+        Route payload = createRoute("owner-restore-route-38");
+        payload.setId(saved.getId());
+        payload.setEntityVersion(saved.getEntityVersion());
+        payload.setOwnerUserId(TAMPERED_OWNER);
+
+        // Call the Api (permission-checked) update — #38 must restore the original owner
+        Route updated = routeApi.update(payload);
+
+        Assertions.assertNotEquals(TAMPERED_OWNER, updated.getOwnerUserId(),
+                "#38: update() must NOT persist the caller-supplied tampered ownerUserId");
+        Assertions.assertEquals(originalOwnerUserId, updated.getOwnerUserId(),
+                "#38: after update(), ownerUserId must match the value that was set by the original save()");
+
+        // Confirm persisted state via system API (bypasses permission layer to read the actual DB row)
+        Route persisted = routeSystemApi.find(updated.getId());
+        Assertions.assertNotNull(persisted, "The updated route must still be findable in the DB");
+        Assertions.assertEquals(originalOwnerUserId, persisted.getOwnerUserId(),
+                "#38: the DB-persisted ownerUserId must be the original value, not the tampered one");
+
+        // Clean up
+        routeSystemApi.remove(persisted.getId());
+    }
+
+    /**
+     * #38 — update() with ownerUserId explicitly set to 0 must also be rejected.
+     *
+     * <p>Setting ownerUserId to 0 (the sentinel for «no owner») is another way a client might
+     * try to orphan a resource. The persisted value must be restored here too.
+     */
+    @Test
+    @Order(23)
+    void update_ownerUserIdSetToZero_ownerUserIdIsRestoredFromPersistedEntity() {
+        TestRuntimeUtils.impersonateAdmin(componentRegistry);
+
+        Route saved = routeApi.save(createRoute("owner-restore-zero-38"));
+        Long originalOwnerUserId = saved.getOwnerUserId();
+
+        // Distinct payload (do not mutate `saved`) that tries to orphan the resource by zeroing the owner.
+        Route payload = createRoute("owner-restore-zero-38");
+        payload.setId(saved.getId());
+        payload.setEntityVersion(saved.getEntityVersion());
+        payload.setOwnerUserId(0L);
+        Route updated = routeApi.update(payload);
+
+        Assertions.assertEquals(originalOwnerUserId, updated.getOwnerUserId(),
+                "#38: setting ownerUserId to 0 in update payload must not persist — original owner must be restored");
+
+        // Clean up
+        routeSystemApi.remove(updated.getId());
+    }
+
     private Route createRoute(String routeId) {
         return new Route(routeId, "/api/service1/**", HttpMethod.ANY, "backend-service", 100, true);
     }

@@ -113,12 +113,13 @@ class GatewayAuthenticationApiTest implements Service {
 
     @Test
     @Order(6)
-    void validBasicAuthReturnsAuthenticated() {
+    void wellFormedBasicAuthIsFailClosed() {
+        //#28: the Basic-auth stub is a reserved/unwired extension point and must stay fail-closed —
+        //even a well-formed user:pass must NOT be treated as authenticated.
         String credentials = Base64.getEncoder().encodeToString("user:password".getBytes(StandardCharsets.UTF_8));
         AuthResult result = gatewayAuthenticationApi.authenticate(buildRequest("Basic " + credentials, null));
-        Assertions.assertTrue(result.isAuthenticated());
+        Assertions.assertFalse(result.isAuthenticated());
         Assertions.assertEquals(AuthMethod.BASIC_AUTH, result.getMethod());
-        Assertions.assertEquals("user", result.getUserId());
     }
 
     @Test

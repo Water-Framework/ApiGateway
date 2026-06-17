@@ -36,6 +36,15 @@ public abstract class GatewayConstants {
             "water.apigateway.circuit.breaker.timeout.ms";
     public static final String PROP_RATE_LIMITER_DEFAULT_RPM =
             "water.apigateway.rate.limiter.default.rpm";
+    /**
+     * Comma-separated list of trusted proxy IP addresses. The X-Forwarded-For / X-Real-IP
+     * headers are only honored when the immediate TCP peer (request.getRemoteAddr()) matches
+     * one of these. Default empty: the forwarded headers are never trusted and the TCP source
+     * address is always used as the rate-limit / client identity key (#37 - prevents
+     * rate-limit-key spoofing via client-controlled forwarding headers).
+     */
+    public static final String PROP_TRUSTED_PROXIES =
+            "water.apigateway.trusted.proxies";
 
     private GatewayConstants() {
         // prevent instantiation

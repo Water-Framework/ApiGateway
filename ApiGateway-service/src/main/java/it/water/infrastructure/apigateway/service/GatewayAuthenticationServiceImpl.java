@@ -10,8 +10,6 @@ import it.water.infrastructure.apigateway.model.GatewayRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -86,20 +84,10 @@ public class GatewayAuthenticationServiceImpl implements GatewayAuthenticationAp
     }
 
     private AuthResult authenticateBasic(String encoded) {
-        try {
-            String decoded = new String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8);
-            String[] parts = decoded.split(":", 2);
-            if (parts.length == 2) {
-                return AuthResult.builder()
-                        .authenticated(true)
-                        .userId(parts[0])
-                        .roles(Collections.emptyList())
-                        .method(AuthMethod.BASIC_AUTH)
-                        .build();
-            }
-        } catch (Exception e) {
-            log.debug("Basic auth decode failed: {}", e.getMessage());
-        }
+        //#28: Basic authentication is a reserved/unwired extension point. It MUST stay fail-closed
+        //(mirroring authenticateJwt) until a real credential validator is wired in. Never authenticate
+        //a request just because it carries a well-formed user:pass pair, that would be a no-credential bypass.
+        log.debug("Basic authentication is disabled until a real credential validator is wired");
         return buildUnauthenticated(AuthMethod.BASIC_AUTH);
     }
 

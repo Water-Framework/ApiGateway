@@ -78,7 +78,6 @@ class GatewayManagementApiTest implements Service {
         Assertions.assertNotNull(viewerRole);
         Assertions.assertNotNull(operatorRole);
 
-        adminUser = userManager.findUser("admin");
         managerUser = userManager.addUser("gwMgmtManager", "GW", "Manager", "gwmgmt.manager@test.com", "TempPassword1_", "salt", false);
         viewerUser = userManager.addUser("gwMgmtViewer", "GW", "Viewer", "gwmgmt.viewer@test.com", "TempPassword1_", "salt", false);
         operatorUser = userManager.addUser("gwMgmtOperator", "GW", "Operator", "gwmgmt.operator@test.com", "TempPassword1_", "salt", false);

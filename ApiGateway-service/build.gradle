@@ -38,6 +38,9 @@ dependencies {
     implementation group: 'it.water.core', name: 'Core-security', version: project.waterVersion
     implementation group: 'it.water.core', name: 'Core-service', version: project.waterVersion
 
+    //Servlet API (provided by the servlet container/CXF stack at runtime) - needed only to read the
+    //immediate TCP peer (getRemoteAddr) for the trusted-proxy gate in GatewayProxyRestControllerImpl (#37)
+    compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
     //Rest Water Deps
     implementation group: 'it.water.service.rest', name: 'Rest-api', version: project.waterVersion
     implementation group: 'it.water.service.rest', name: 'Rest-security', version: project.waterVersion

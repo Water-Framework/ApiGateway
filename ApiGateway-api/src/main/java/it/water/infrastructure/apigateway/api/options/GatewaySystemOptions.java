@@ -18,6 +18,8 @@ package it.water.infrastructure.apigateway.api.options;
 
 import it.water.core.api.service.Service;
 
+import java.util.Set;
+
 /**
  * Runtime configuration options for the ApiGateway system service.
  * Implementations read values from ApplicationProperties and expose typed
@@ -54,4 +56,12 @@ public interface GatewaySystemOptions extends Service {
      * explicit rate-limit rule matches. Zero disables the fallback limiter.
      */
     int getDefaultRateLimiterRequestsPerMinute();
+
+    /**
+     * @return the set of trusted proxy IP addresses. The X-Forwarded-For / X-Real-IP request
+     * headers are honored only when the immediate TCP peer matches one of these addresses;
+     * otherwise the TCP source address is used. Empty set (the default) means the forwarded
+     * headers are never trusted (#37).
+     */
+    Set<String> getTrustedProxies();
 }
