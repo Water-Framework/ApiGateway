@@ -46,8 +46,8 @@ allprojects {
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "ApiGateway"
-        property "sonar.projectName", "ApiGateway"
+        property "sonar.projectKey", "water.ApiGateway"
+        property "sonar.projectName", "water.ApiGateway"
         property "sonar.projectVersion", project.waterVersion
 
         property "sonar.sources", fileTree(dir: '.', include: '**/src/main/java').asPath

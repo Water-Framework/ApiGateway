@@ -9,7 +9,7 @@ Feature: Check RateLimitRule Rest Api Response
     # --------------- SAVE -----------------------------
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/rate-limits'
+    Given url serviceBaseUrl + '/water/gateway/rate-limits'
     And request
     """
     {
@@ -48,7 +48,7 @@ Feature: Check RateLimitRule Rest Api Response
     # --------------- FIND -----------------------------
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/rate-limits/' + ruleEntityId
+    Given url serviceBaseUrl + '/water/gateway/rate-limits/' + ruleEntityId
     When method GET
     Then status 200
     And match response.id == ruleEntityId
@@ -56,7 +56,7 @@ Feature: Check RateLimitRule Rest Api Response
     # --------------- FIND ALL -------------------------
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/rate-limits'
+    Given url serviceBaseUrl + '/water/gateway/rate-limits'
     When method GET
     Then status 200
     And match response.results[*].id contains ruleEntityId
@@ -64,6 +64,6 @@ Feature: Check RateLimitRule Rest Api Response
     # --------------- DELETE ---------------------------
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/rate-limits/' + ruleEntityId
+    Given url serviceBaseUrl + '/water/gateway/rate-limits/' + ruleEntityId
     When method DELETE
     Then status 204

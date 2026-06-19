@@ -93,16 +93,16 @@ JDK 11+ `HttpClient`. Hop-by-hop header stripping (`connection`, `keep-alive`, `
 
 ### Management API
 
-Base path: `/water/api/gateway/`. JWT-protected CRUD + operational endpoints.
+Base path: `/water/gateway/`. JWT-protected CRUD + operational endpoints.
 
 | Method | Path |
 |---|---|
-| `POST` / `PUT` / `GET` / `DELETE` | `/water/api/gateway/routes[/{id}]` |
-| `POST` / `PUT` / `GET` / `DELETE` | `/water/api/gateway/rate-limits[/{id}]` |
-| `GET` | `/water/api/gateway/management/health` |
-| `GET` | `/water/api/gateway/management/metrics` |
-| `GET` | `/water/api/gateway/management/circuitBreakers` |
-| `POST` | `/water/api/gateway/management/sync` |
+| `POST` / `PUT` / `GET` / `DELETE` | `/water/gateway/routes[/{id}]` |
+| `POST` / `PUT` / `GET` / `DELETE` | `/water/gateway/rate-limits[/{id}]` |
+| `GET` | `/water/gateway/management/health` |
+| `GET` | `/water/gateway/management/metrics` |
+| `GET` | `/water/gateway/management/circuitBreakers` |
+| `POST` | `/water/gateway/management/sync` |
 
 ### Proxy entrypoint
 

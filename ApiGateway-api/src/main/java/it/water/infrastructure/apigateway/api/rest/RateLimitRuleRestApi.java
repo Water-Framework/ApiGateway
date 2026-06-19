@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * REST API interface for RateLimitRule entity.
  */
-@Path("/api/gateway/rate-limits")
+@Path("/gateway/rate-limits")
 @Api(produces = MediaType.APPLICATION_JSON, tags = "Gateway Rate Limit API")
 @FrameworkRestApi
 public interface RateLimitRuleRestApi extends RestApi {

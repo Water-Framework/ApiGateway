@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Spring REST API interface for RateLimitRule.
  */
-@RequestMapping("/api/gateway/rate-limits")
+@RequestMapping("/gateway/rate-limits")
 @FrameworkRestApi
 public interface RateLimitRuleSpringRestApi extends RateLimitRuleRestApi {
 

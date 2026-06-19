@@ -8,7 +8,7 @@ Feature: Check Gateway Management Rest Api Response
 
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/management/health'
+    Given url serviceBaseUrl + '/water/gateway/management/health'
     When method GET
     Then status 200
     And match response ==
@@ -24,7 +24,7 @@ Feature: Check Gateway Management Rest Api Response
 
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/management/metrics'
+    Given url serviceBaseUrl + '/water/gateway/management/metrics'
     When method GET
     Then status 200
     # #32: endpoint now delegates to GatewayApi (permission-checked), not GatewaySystemApi directly.
@@ -35,7 +35,7 @@ Feature: Check Gateway Management Rest Api Response
 
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/management/circuit-breakers'
+    Given url serviceBaseUrl + '/water/gateway/management/circuit-breakers'
     When method GET
     Then status 200
     And match response == '#object'
@@ -44,7 +44,7 @@ Feature: Check Gateway Management Rest Api Response
 
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/management/sync'
+    Given url serviceBaseUrl + '/water/gateway/management/sync'
     When method POST
     # #32: endpoint now delegates to GatewayApi.syncWithServiceDiscovery() (REFRESH_ROUTES-protected).
     # In the test environment there is no live ServiceDiscovery, so the system layer throws

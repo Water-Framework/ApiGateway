@@ -85,7 +85,7 @@ public class LoadBalancerServiceImpl implements LoadBalancerApi {
 
     private ServiceRegistration selectRoundRobin(String serviceName, List<ServiceRegistration> instances) {
         AtomicInteger counter = roundRobinCounters.computeIfAbsent(serviceName, k -> new AtomicInteger(0));
-        int index = Math.abs(counter.getAndIncrement() % instances.size());
+        int index = Math.floorMod(counter.getAndIncrement(), instances.size());
         return instances.get(index);
     }
 
@@ -96,8 +96,11 @@ public class LoadBalancerServiceImpl implements LoadBalancerApi {
             int weight = getWeight(reg);
             totalWeight += weight;
         }
+        if (totalWeight <= 0) {
+            return selectRoundRobin(serviceName, instances);
+        }
         AtomicInteger counter = weightedCounters.computeIfAbsent(serviceName, k -> new AtomicInteger(0));
-        int pos = Math.abs(counter.getAndIncrement() % totalWeight);
+        int pos = Math.floorMod(counter.getAndIncrement(), totalWeight);
         int cumulative = 0;
         for (ServiceRegistration reg : instances) {
             cumulative += getWeight(reg);
@@ -130,8 +133,7 @@ public class LoadBalancerServiceImpl implements LoadBalancerApi {
         if (clientIp == null || clientIp.isEmpty()) {
             return instances.get(0);
         }
-        int hash = Math.abs(clientIp.hashCode());
-        return instances.get(hash % instances.size());
+        return instances.get(Math.floorMod(clientIp.hashCode(), instances.size()));
     }
 
     private int getWeight(ServiceRegistration reg) {

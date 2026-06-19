@@ -401,7 +401,7 @@ class GatewayRouterApiTest implements Service {
                 .thenReturn(httpResponse);
 
         Method proxyRequest = GatewayRouterServiceImpl.class
-                .getDeclaredMethod("proxyRequest", GatewayRequest.class, ServiceRegistration.class, Route.class);
+                .getDeclaredMethod("proxyRequest", GatewayRequest.class, ServiceRegistration.class);
         proxyRequest.setAccessible(true);
 
         GatewayRequest request = GatewayRequest.builder()
@@ -413,7 +413,7 @@ class GatewayRouterApiTest implements Service {
         ServiceRegistration instance = new ServiceRegistration("svc", "1.0", "inst-1",
                 "http://localhost:9081/water/assetcategories", "http", ServiceStatus.UP);
 
-        GatewayResponse response = (GatewayResponse) proxyRequest.invoke(router, request, instance, null);
+        GatewayResponse response = (GatewayResponse) proxyRequest.invoke(router, request, instance);
         Assertions.assertEquals("application/json", response.getHeaders().get("content-type"));
         Assertions.assertFalse(response.getHeaders().containsKey("transfer-encoding"));
         Assertions.assertFalse(response.getHeaders().containsKey("connection"));
@@ -446,7 +446,7 @@ class GatewayRouterApiTest implements Service {
             applicationProperties.loadProperties(props);
 
             Method proxyRequest = GatewayRouterServiceImpl.class
-                    .getDeclaredMethod("proxyRequest", GatewayRequest.class, ServiceRegistration.class, Route.class);
+                    .getDeclaredMethod("proxyRequest", GatewayRequest.class, ServiceRegistration.class);
             proxyRequest.setAccessible(true);
 
             GatewayRequest request = GatewayRequest.builder()
@@ -462,7 +462,7 @@ class GatewayRouterApiTest implements Service {
                             sent.timeout().isPresent() && sent.timeout().get().toMillis() == 1234L),
                     Mockito.any(HttpResponse.BodyHandler.class))).thenReturn(httpResponse);
 
-            proxyRequest.invoke(router, request, instance, null);
+            proxyRequest.invoke(router, request, instance);
 
             Mockito.verify(httpClient).send(Mockito.argThat((HttpRequest sent) ->
                             sent.timeout().isPresent() && sent.timeout().get().toMillis() == 1234L),

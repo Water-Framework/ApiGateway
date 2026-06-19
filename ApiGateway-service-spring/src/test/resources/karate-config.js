@@ -3,7 +3,7 @@ function fn() {
     let host = karate.properties['host'];
     let protocol = karate.properties['protocol'];
     let serviceBaseUrl = protocol+"://"+host+":"+webServerPort;
-    let randomSeed = Math.floor(Math.random() * 100);
+    let randomSeed = java.util.UUID.randomUUID().toString();
     return {
         "serviceBaseUrl": serviceBaseUrl,
         "randomSeed": randomSeed

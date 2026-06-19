@@ -9,7 +9,7 @@ Feature: Check Route Rest Api Response
     # --------------- SAVE -----------------------------
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/routes'
+    Given url serviceBaseUrl + '/water/gateway/routes'
     And request
     """
     {
@@ -49,7 +49,7 @@ Feature: Check Route Rest Api Response
     # --------------- FIND -----------------------------
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/routes/' + routeEntityId
+    Given url serviceBaseUrl + '/water/gateway/routes/' + routeEntityId
     When method GET
     Then status 200
     And match response.id == routeEntityId
@@ -57,7 +57,7 @@ Feature: Check Route Rest Api Response
     # --------------- FIND ALL -------------------------
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/routes'
+    Given url serviceBaseUrl + '/water/gateway/routes'
     When method GET
     Then status 200
     And match response.results[*].id contains routeEntityId
@@ -65,7 +65,7 @@ Feature: Check Route Rest Api Response
     # --------------- DELETE ---------------------------
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/routes/' + routeEntityId
+    Given url serviceBaseUrl + '/water/gateway/routes/' + routeEntityId
     When method DELETE
     Then status 204
 
@@ -73,6 +73,6 @@ Feature: Check Route Rest Api Response
 
     Given header Content-Type = 'application/json'
     And header Accept = 'application/json'
-    Given url serviceBaseUrl + '/water/api/gateway/routes/refresh'
+    Given url serviceBaseUrl + '/water/gateway/routes/refresh'
     When method POST
     Then status 204

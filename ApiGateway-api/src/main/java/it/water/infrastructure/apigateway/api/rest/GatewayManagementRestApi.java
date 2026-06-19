@@ -27,7 +27,7 @@ import java.util.Map;
  * interface free of permission annotations also keeps {@code ApiGateway-api} free of any dependency
  * on {@code Core-permission}.
  */
-@Path("/api/gateway/management")
+@Path("/gateway/management")
 @Api(produces = MediaType.APPLICATION_JSON, tags = "Gateway Management API")
 @FrameworkRestApi
 public interface GatewayManagementRestApi extends RestApi {

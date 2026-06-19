@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * REST API interface for Route entity.
  */
-@Path("/api/gateway/routes")
+@Path("/gateway/routes")
 @Api(produces = MediaType.APPLICATION_JSON, tags = "Gateway Route API")
 @FrameworkRestApi
 public interface RouteRestApi extends RestApi {

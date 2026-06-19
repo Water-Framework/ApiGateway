@@ -223,7 +223,7 @@ ApiGateway/
                           REST API ENDPOINTS
 ================================================================================
 
-Base Path: /water/api/gateway
+Base Path: /water/gateway
 
 1. ROUTING MANAGEMENT
 --------------------------------------------------------------------------------

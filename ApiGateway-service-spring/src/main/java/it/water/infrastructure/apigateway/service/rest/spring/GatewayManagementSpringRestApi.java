@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Spring REST API interface for Gateway Management.
  */
-@RequestMapping("/api/gateway/management")
+@RequestMapping("/gateway/management")
 @FrameworkRestApi
 public interface GatewayManagementSpringRestApi {
 

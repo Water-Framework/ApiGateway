@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Spring REST API interface for Route - adds Spring annotations on top of JAX-RS.
  */
-@RequestMapping("/api/gateway/routes")
+@RequestMapping("/gateway/routes")
 @FrameworkRestApi
 public interface RouteSpringRestApi extends RouteRestApi {
 

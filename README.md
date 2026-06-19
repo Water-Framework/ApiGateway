@@ -106,23 +106,23 @@ sequenceDiagram
 
 ### Management API
 
-Base path: `/water/api/gateway/`. JWT-protected. Used to configure routes, rate-limit rules, and inspect/control the gateway at runtime.
+Base path: `/water/gateway/`. JWT-protected. Used to configure routes, rate-limit rules, and inspect/control the gateway at runtime.
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/water/api/gateway/routes` | Create a `Route` |
-| `PUT` | `/water/api/gateway/routes` | Update a `Route` |
-| `GET` | `/water/api/gateway/routes` | List routes (paginated) |
-| `GET` | `/water/api/gateway/routes/{id}` | Find route by ID |
-| `DELETE` | `/water/api/gateway/routes/{id}` | Delete route |
-| `POST` | `/water/api/gateway/rate-limits` | Create a `RateLimitRule` |
-| `PUT` | `/water/api/gateway/rate-limits` | Update a `RateLimitRule` |
-| `GET` | `/water/api/gateway/rate-limits` | List rate-limit rules |
-| `DELETE` | `/water/api/gateway/rate-limits/{id}` | Delete a rate-limit rule |
-| `GET` | `/water/api/gateway/management/health` | Gateway health |
-| `GET` | `/water/api/gateway/management/metrics` | Per-service statistics |
-| `GET` | `/water/api/gateway/management/circuitBreakers` | Current circuit-breaker state per service |
-| `POST` | `/water/api/gateway/management/sync` | Manually sync the instance cache from ServiceDiscovery |
+| `POST` | `/water/gateway/routes` | Create a `Route` |
+| `PUT` | `/water/gateway/routes` | Update a `Route` |
+| `GET` | `/water/gateway/routes` | List routes (paginated) |
+| `GET` | `/water/gateway/routes/{id}` | Find route by ID |
+| `DELETE` | `/water/gateway/routes/{id}` | Delete route |
+| `POST` | `/water/gateway/rate-limits` | Create a `RateLimitRule` |
+| `PUT` | `/water/gateway/rate-limits` | Update a `RateLimitRule` |
+| `GET` | `/water/gateway/rate-limits` | List rate-limit rules |
+| `DELETE` | `/water/gateway/rate-limits/{id}` | Delete a rate-limit rule |
+| `GET` | `/water/gateway/management/health` | Gateway health |
+| `GET` | `/water/gateway/management/metrics` | Per-service statistics |
+| `GET` | `/water/gateway/management/circuitBreakers` | Current circuit-breaker state per service |
+| `POST` | `/water/gateway/management/sync` | Manually sync the instance cache from ServiceDiscovery |
 
 ### Proxy entrypoint (runtime traffic)
 

@@ -42,7 +42,7 @@ public class RateLimiterServiceImpl implements RateLimiterApi {
             this.tokens = new AtomicLong(capacity);
             this.lastRefill = new AtomicLong(System.currentTimeMillis());
             this.capacity = capacity;
-            this.refillRate = (double) maxRequests / (windowSeconds * 1000.0);
+            this.refillRate = maxRequests / (windowSeconds * 1000.0);
         }
 
         synchronized boolean tryConsume() {
@@ -64,7 +64,7 @@ public class RateLimiterServiceImpl implements RateLimiterApi {
             return (int) Math.max(0, tokens.get());
         }
 
-        long resetAfterMs(int maxRequests, int windowSeconds) {
+        long resetAfterMs() {
             if (tokens.get() > 0) return 0;
             return (long) (1.0 / refillRate);
         }
@@ -154,7 +154,7 @@ public class RateLimiterServiceImpl implements RateLimiterApi {
                         rule.getMaxRequests(), rule.getWindowSeconds()));
         boolean allowed = bucket.tryConsume();
         int remaining = bucket.remaining();
-        long resetAfterMs = allowed ? 0 : bucket.resetAfterMs(rule.getMaxRequests(), rule.getWindowSeconds());
+        long resetAfterMs = allowed ? 0 : bucket.resetAfterMs();
         return RateLimitResult.builder()
                 .allowed(allowed)
                 .remaining(remaining)

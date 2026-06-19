@@ -71,7 +71,7 @@ public class GatewaySystemServiceImpl extends BaseEntitySystemServiceImpl<Route>
     @Setter
     private GatewaySystemOptions gatewaySystemOptions;
 
-    private volatile Map<String, List<ServiceRegistration>> serviceCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, List<ServiceRegistration>> serviceCache = new ConcurrentHashMap<>();
     private final Map<String, ServiceStats> statsMap = new ConcurrentHashMap<>();
     private HttpClient serviceDiscoveryHttpClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -94,7 +94,7 @@ public class GatewaySystemServiceImpl extends BaseEntitySystemServiceImpl<Route>
         // HttpClient is not AutoCloseable on Java 17; dereferencing lets the GC
         // close its internal selector/executor threads once the component is unloaded.
         this.serviceDiscoveryHttpClient = null;
-        this.serviceCache = new ConcurrentHashMap<>();
+        this.serviceCache.clear();
         this.statsMap.clear();
     }
 
@@ -105,9 +105,11 @@ public class GatewaySystemServiceImpl extends BaseEntitySystemServiceImpl<Route>
             List<ServiceRegistration> services = fetchAvailableServices();
             refreshServiceCache(services);
             log.info("Synced {} service instances from ServiceDiscovery", services.size());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("ServiceDiscovery sync interrupted while fetching available services: " + e.getMessage(), e);
         } catch (Exception e) {
-            log.error("Failed to sync with ServiceDiscovery: {}", e.getMessage(), e);
-            throw new IllegalStateException("ServiceDiscovery sync failed: " + e.getMessage(), e);
+            throw new IllegalStateException("ServiceDiscovery sync failed while refreshing the local cache: " + e.getMessage(), e);
         }
     }
 
@@ -193,11 +195,12 @@ public class GatewaySystemServiceImpl extends BaseEntitySystemServiceImpl<Route>
     }
 
     private void refreshServiceCache(List<ServiceRegistration> services) {
-        Map<String, List<ServiceRegistration>> refreshedCache = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<ServiceRegistration>> refreshedCache = new ConcurrentHashMap<>();
         for (ServiceRegistration reg : services) {
             refreshedCache.computeIfAbsent(reg.getServiceName(), k -> new ArrayList<>()).add(reg);
         }
-        serviceCache = refreshedCache;
+        serviceCache.clear();
+        serviceCache.putAll(refreshedCache);
     }
 
     private boolean hasRemoteServiceDiscoveryConfigured() {

@@ -77,7 +77,7 @@ public class GatewayRouterServiceImpl implements GatewayRouterApi {
     @Setter
     private RouteRepository routeRepository;
 
-    private volatile List<Route> activeRoutes = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Route> activeRoutes = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<String, Pattern> routePatternCache = new ConcurrentHashMap<>();
     private volatile boolean routesInitialized;
     private HttpClient httpClient;
@@ -105,7 +105,7 @@ public class GatewayRouterServiceImpl implements GatewayRouterApi {
         // its internal selector/executor threads once the component is unloaded.
         this.httpClient = null;
         this.routePatternCache.clear();
-        this.activeRoutes = new CopyOnWriteArrayList<>();
+        this.activeRoutes.clear();
         this.routesInitialized = false;
     }
 
@@ -148,7 +148,7 @@ public class GatewayRouterServiceImpl implements GatewayRouterApi {
         // Proxy request
         long startTime = System.currentTimeMillis();
         try {
-            GatewayResponse response = proxyRequest(transformedRequest, instance, route);
+            GatewayResponse response = proxyRequest(transformedRequest, instance);
             long latency = System.currentTimeMillis() - startTime;
             response.setLatencyMs(latency);
             response.setUpstreamInstanceId(instance.getInstanceId());
@@ -162,8 +162,13 @@ public class GatewayRouterServiceImpl implements GatewayRouterApi {
             }
 
             return requestTransformerApi.transformResponse(response, route);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Proxy request interrupted for {}: {}", instance.getEndpoint(), e.getMessage());
+            circuitBreakerApi.recordFailure(route.getTargetServiceName(), instance.getInstanceId());
+            loadBalancerApi.reportFailure(route.getTargetServiceName(), instance.getInstanceId(), e);
+            return buildErrorResponse(502, "Bad Gateway: request interrupted");
         } catch (Exception e) {
-            long latency = System.currentTimeMillis() - startTime;
             log.error("Proxy request failed for {}: {}", instance.getEndpoint(), e.getMessage());
             circuitBreakerApi.recordFailure(route.getTargetServiceName(), instance.getInstanceId());
             loadBalancerApi.reportFailure(route.getTargetServiceName(), instance.getInstanceId(), e);
@@ -221,7 +226,8 @@ public class GatewayRouterServiceImpl implements GatewayRouterApi {
             List<Route> sortedRoutes = newRoutes.stream()
                     .sorted((a, b) -> Integer.compare(b.getPriority(), a.getPriority()))
                     .toList();
-            activeRoutes = new CopyOnWriteArrayList<>(sortedRoutes);
+            activeRoutes.clear();
+            activeRoutes.addAll(sortedRoutes);
             routePatternCache.clear();
             routesInitialized = true;
             // Also sync service discovery
@@ -241,7 +247,8 @@ public class GatewayRouterServiceImpl implements GatewayRouterApi {
         List<Route> updated = new ArrayList<>(activeRoutes);
         updated.add(route);
         updated.sort((a, b) -> Integer.compare(b.getPriority(), a.getPriority()));
-        activeRoutes = new CopyOnWriteArrayList<>(updated);
+        activeRoutes.clear();
+        activeRoutes.addAll(updated);
         routePatternCache.remove(route.getPathPattern());
         routesInitialized = true;
     }
@@ -251,7 +258,8 @@ public class GatewayRouterServiceImpl implements GatewayRouterApi {
         log.info("Removing dynamic route: {}", routeId);
         List<Route> updated = new ArrayList<>(activeRoutes);
         updated.removeIf(r -> routeId.equals(r.getRouteId()));
-        activeRoutes = new CopyOnWriteArrayList<>(updated);
+        activeRoutes.clear();
+        activeRoutes.addAll(updated);
         routesInitialized = true;
     }
 
@@ -263,8 +271,8 @@ public class GatewayRouterServiceImpl implements GatewayRouterApi {
 
     private boolean matchesRoute(GatewayRequest request, Route route) {
         // Method check
-        if (route.getMethod() != null && route.getMethod() != HttpMethod.ANY) {
-            if (request.getMethod() != route.getMethod()) return false;
+        if (route.getMethod() != null && route.getMethod() != HttpMethod.ANY && request.getMethod() != route.getMethod()) {
+            return false;
         }
         // Path pattern check
         Pattern pattern = routePatternCache.computeIfAbsent(route.getPathPattern(), this::compilePattern);
@@ -280,7 +288,7 @@ public class GatewayRouterServiceImpl implements GatewayRouterApi {
         return Pattern.compile(regex);
     }
 
-    private GatewayResponse proxyRequest(GatewayRequest request, ServiceRegistration instance, Route route) throws IOException, InterruptedException {
+    private GatewayResponse proxyRequest(GatewayRequest request, ServiceRegistration instance) throws IOException, InterruptedException {
         String targetUrl = buildTargetUrl(instance, request);
         log.debug("Proxying to: {}", targetUrl);
 

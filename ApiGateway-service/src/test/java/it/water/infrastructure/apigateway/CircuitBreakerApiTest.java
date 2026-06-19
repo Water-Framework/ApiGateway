@@ -88,12 +88,12 @@ class CircuitBreakerApiTest implements Service {
 
     @Test
     @Order(6)
-    void halfOpenAfterTimeout() throws InterruptedException {
+    void halfOpenAfterTimeout() {
         CircuitBreakerConfig config = CircuitBreakerConfig.builder()
                 .serviceName("svc-c")
                 .failureThreshold(2)
                 .successThreshold(2)
-                .timeoutSeconds(0) // timeout immediately
+                .timeoutSeconds(-1) // timeout already elapsed
                 .windowSizeSeconds(60)
                 .build();
         circuitBreakerApi.configure("svc-c", config);
@@ -102,8 +102,6 @@ class CircuitBreakerApiTest implements Service {
         circuitBreakerApi.recordFailure("svc-c", "inst-1");
         Assertions.assertEquals(CircuitState.OPEN, circuitBreakerApi.getState("svc-c", "inst-1"));
 
-        // Wait for timeout (0 seconds = immediate)
-        Thread.sleep(50);
         // allowRequest should transition to HALF_OPEN
         boolean allowed = circuitBreakerApi.allowRequest("svc-c", "inst-1");
         Assertions.assertTrue(allowed);
@@ -122,12 +120,12 @@ class CircuitBreakerApiTest implements Service {
 
     @Test
     @Order(8)
-    void halfOpenFailureReopensCircuit() throws InterruptedException {
+    void halfOpenFailureReopensCircuit() {
         CircuitBreakerConfig config = CircuitBreakerConfig.builder()
                 .serviceName("svc-d")
                 .failureThreshold(1)
                 .successThreshold(3)
-                .timeoutSeconds(0)
+                .timeoutSeconds(-1)
                 .windowSizeSeconds(60)
                 .build();
         circuitBreakerApi.configure("svc-d", config);
@@ -135,7 +133,6 @@ class CircuitBreakerApiTest implements Service {
         circuitBreakerApi.recordFailure("svc-d", "inst-1");
         Assertions.assertEquals(CircuitState.OPEN, circuitBreakerApi.getState("svc-d", "inst-1"));
 
-        Thread.sleep(50);
         circuitBreakerApi.allowRequest("svc-d", "inst-1"); // transition to HALF_OPEN
         Assertions.assertEquals(CircuitState.HALF_OPEN, circuitBreakerApi.getState("svc-d", "inst-1"));
 
